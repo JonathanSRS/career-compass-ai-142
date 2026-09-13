@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedResumesIndexRouteImport } from './routes/_authenticated/resumes.index'
+import { Route as AuthenticatedResumesResumeIdRouteImport } from './routes/_authenticated/resumes.$resumeId'
+import { Route as AuthenticatedResumesNewRouteImport } from './routes/_authenticated/resumes.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,17 +42,32 @@ const AuthenticatedResumesIndexRoute =
     path: '/resumes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedResumesResumeIdRoute =
+  AuthenticatedResumesResumeIdRouteImport.update({
+    id: '/resumes/$resumeId',
+    path: '/resumes/$resumeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedResumesNewRoute = AuthenticatedResumesNewRouteImport.update({
+  id: '/resumes/new',
+  path: '/resumes/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/resumes/$resumeId': typeof AuthenticatedResumesResumeIdRoute
+  '/resumes/new': typeof AuthenticatedResumesNewRoute
   '/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/resumes/$resumeId': typeof AuthenticatedResumesResumeIdRoute
+  '/resumes/new': typeof AuthenticatedResumesNewRoute
   '/resumes': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesById {
@@ -59,19 +76,35 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/resumes/$resumeId': typeof AuthenticatedResumesResumeIdRoute
+  '/_authenticated/resumes/new': typeof AuthenticatedResumesNewRoute
   '/_authenticated/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/resumes/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/resumes/$resumeId'
+    | '/resumes/new'
+    | '/resumes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/resumes'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/resumes/$resumeId'
+    | '/resumes/new'
+    | '/resumes'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/_authenticated/resumes/$resumeId'
+    | '/_authenticated/resumes/new'
     | '/_authenticated/resumes/'
   fileRoutesById: FileRoutesById
 }
@@ -118,16 +151,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResumesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resumes/$resumeId': {
+      id: '/_authenticated/resumes/$resumeId'
+      path: '/resumes/$resumeId'
+      fullPath: '/resumes/$resumeId'
+      preLoaderRoute: typeof AuthenticatedResumesResumeIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resumes/new': {
+      id: '/_authenticated/resumes/new'
+      path: '/resumes/new'
+      fullPath: '/resumes/new'
+      preLoaderRoute: typeof AuthenticatedResumesNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedResumesResumeIdRoute: typeof AuthenticatedResumesResumeIdRoute
+  AuthenticatedResumesNewRoute: typeof AuthenticatedResumesNewRoute
   AuthenticatedResumesIndexRoute: typeof AuthenticatedResumesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedResumesResumeIdRoute: AuthenticatedResumesResumeIdRoute,
+  AuthenticatedResumesNewRoute: AuthenticatedResumesNewRoute,
   AuthenticatedResumesIndexRoute: AuthenticatedResumesIndexRoute,
 }
 
