@@ -78,6 +78,7 @@ function NewJob() {
           <Input
             id="job-url"
             type="url"
+            maxLength={2000}
             placeholder="https://"
             value={sourceUrl}
             onChange={(e) => setSourceUrl(e.target.value)}
