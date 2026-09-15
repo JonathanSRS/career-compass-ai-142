@@ -45,14 +45,42 @@ const features = [
 ];
 
 function Landing() {
+  const navigate = useNavigate();
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!active || !data.session) return;
+      setSignedIn(true);
+      navigate({ to: "/dashboard", replace: true });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      setSignedIn(Boolean(session));
+      if (session) navigate({ to: "/dashboard", replace: true });
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [navigate]);
+
   return (
     <main className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-lg font-semibold">Vaga Match</span>
-        <Button asChild variant="ghost">
-          <Link to="/auth">Entrar</Link>
-        </Button>
+        {signedIn ? (
+          <Button asChild variant="ghost">
+            <Link to="/dashboard">Ir para o painel</Link>
+          </Button>
+        ) : (
+          <Button asChild variant="ghost">
+            <Link to="/auth">Entrar</Link>
+          </Button>
+        )}
       </header>
+
 
       <section className="mx-auto max-w-3xl px-6 pt-12 pb-20 text-center">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
