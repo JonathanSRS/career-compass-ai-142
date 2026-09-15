@@ -86,7 +86,7 @@ function JobDetail() {
   useEffect(() => {
     if (resumeId || !resumesQuery.data?.length) return;
     const primary = resumesQuery.data.find((r) => r.is_primary) ?? resumesQuery.data[0];
-    setResumeId(primary.id);
+    if (primary) setResumeId(primary.id);
   }, [resumesQuery.data, resumeId]);
 
   const analyzeMutation = useMutation({
