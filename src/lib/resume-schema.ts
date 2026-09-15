@@ -5,6 +5,7 @@ export const experienceSchema = z.object({
   position: z.string().default(""),
   start_date: z.string().default(""),
   end_date: z.string().default(""),
+  current: z.boolean().default(false),
   description: z.string().default(""),
   achievements: z.array(z.string()).default([]),
 });
@@ -82,7 +83,9 @@ export function resumeToPlainText(resume: StructuredResume): string {
   if (resume.experiences.length) {
     lines.push("\nEXPERIÊNCIA PROFISSIONAL");
     for (const e of resume.experiences) {
-      lines.push(`${e.position} — ${e.company} (${e.start_date} - ${e.end_date || "atual"})`);
+      lines.push(
+        `${e.position} — ${e.company} (${e.start_date} - ${e.current ? "atual (emprego atual)" : e.end_date || "não informado"})`,
+      );
       if (e.description) lines.push(e.description);
       for (const a of e.achievements) lines.push(`- ${a}`);
     }
