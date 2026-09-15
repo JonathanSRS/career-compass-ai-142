@@ -95,8 +95,9 @@ function Landing() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
-            <Link to="/auth">
-              Começar agora <ArrowRight className="ml-2 size-4" />
+            <Link to={signedIn ? "/dashboard" : "/auth"}>
+              {signedIn ? "Ir para o painel" : "Começar agora"}{" "}
+              <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
         </div>
