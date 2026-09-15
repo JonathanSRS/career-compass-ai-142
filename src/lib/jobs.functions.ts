@@ -28,15 +28,26 @@ export const listJobs = createServerFn({ method: "GET" })
   });
 
 const createJobInput = z.object({
-  title: z.string().min(1).max(160),
-  company: z.string().max(160).optional().default(""),
-  source_url: z.string().max(500).optional().default(""),
-  description: z.string().min(30, "Descreva a vaga com mais detalhes.").max(30000),
+  title: z.string().trim().min(1, "Informe o título da vaga.").max(160),
+  company: z.string().trim().max(160).optional().default(""),
+  source_url: z
+    .string()
+    .trim()
+    .max(2000, "O link da vaga é muito longo. Cole apenas o endereço (URL) do anúncio.")
+    .optional()
+    .default(""),
+  description: z.string().trim().min(30, "Descreva a vaga com mais detalhes.").max(30000),
 });
 
 export const createJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => createJobInput.parse(input))
+  .inputValidator((input: unknown) => {
+    const parsed = createJobInput.safeParse(input);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message ?? "Verifique os dados da vaga.");
+    }
+    return parsed.data;
+  })
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("jobs")
