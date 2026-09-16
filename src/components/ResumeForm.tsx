@@ -139,9 +139,11 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
                   ] as const
                 ).map(([field, label]) => (
                   <div key={field} className="space-y-2">
-                    <Label>{label}</Label>
+                    <Label>{field === "end_date" && exp.current ? "Fim (emprego atual)" : label}</Label>
                     <Input
-                      value={exp[field]}
+                      value={field === "end_date" && exp.current ? "" : exp[field]}
+                      disabled={field === "end_date" && exp.current}
+                      placeholder={field === "end_date" && exp.current ? "Atual" : undefined}
                       onChange={(e) => {
                         const next = [...content.experiences];
                         next[index] = { ...exp, [field]: e.target.value };
@@ -150,6 +152,23 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
                     />
                   </div>
                 ))}
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg bg-muted px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">É meu emprego atual</p>
+                  <p className="text-xs text-muted-foreground">
+                    Marque se você continua nesta posição; a data de fim será exibida como "atual".
+                  </p>
+                </div>
+                <Switch
+                  checked={exp.current}
+                  aria-label="Emprego atual"
+                  onCheckedChange={(checked) => {
+                    const next = [...content.experiences];
+                    next[index] = { ...exp, current: checked, end_date: checked ? "" : exp.end_date };
+                    patchContent({ experiences: next });
+                  }}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Descrição</Label>
@@ -187,7 +206,15 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
               patchContent({
                 experiences: [
                   ...content.experiences,
-                  { company: "", position: "", start_date: "", end_date: "", description: "", achievements: [] },
+                  {
+                    company: "",
+                    position: "",
+                    start_date: "",
+                    end_date: "",
+                    current: false,
+                    description: "",
+                    achievements: [],
+                  },
                 ],
               })
             }
