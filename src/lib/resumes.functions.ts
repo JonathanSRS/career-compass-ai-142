@@ -87,6 +87,26 @@ export const saveResume = createServerFn({ method: "POST" })
     return { id: row.id };
   });
 
+/**
+ * Converte o texto extraído de um arquivo (PDF/DOCX/TXT) em seções estruturadas.
+ * Nada é persistido: o usuário revisa antes de salvar.
+ */
+export const importResumeFromText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ text: z.string().min(40, "Texto muito curto para análise.").max(20000) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { getAIService, friendlyAIError } = await import("@/lib/ai/ai-service.server");
+    try {
+      const structured = await getAIService().parseResumeText({ resumeText: data.text });
+      return { structured_content: structured };
+    } catch (error) {
+      console.error("importResumeFromText", error);
+      throw new Error(friendlyAIError(error));
+    }
+  });
+
 export const deleteResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))

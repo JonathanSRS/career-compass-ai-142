@@ -6,6 +6,7 @@
  * `getAIService()` — nenhum serviço de negócio precisa mudar.
  */
 import { jobAnalysisSchema, matchResultSchema, type JobAnalysis, type MatchResult } from "@/lib/analysis-schema";
+import { structuredResumeSchema, type StructuredResume } from "@/lib/resume-schema";
 
 export interface AnalyzeJobInput {
   title: string;
@@ -24,6 +25,7 @@ export interface CalculateMatchInput {
 export interface AIService {
   analyzeJob(input: AnalyzeJobInput): Promise<JobAnalysis>;
   calculateMatch(input: CalculateMatchInput): Promise<MatchResult>;
+  parseResumeText(input: { resumeText: string }): Promise<StructuredResume>;
 }
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -96,6 +98,22 @@ Formato do JSON: { "score": number, "summary": string, "strengths": string[], "a
     const parsed = matchResultSchema.safeParse(raw);
     if (!parsed.success) throw new Error("AI_INVALID_RESPONSE");
     return { ...parsed.data, score: Math.max(0, Math.min(100, Math.round(parsed.data.score))) };
+  }
+
+  async parseResumeText(input: { resumeText: string }): Promise<StructuredResume> {
+    const raw = await callGateway(
+      `Você organiza o texto de um currículo já existente em campos estruturados, em português.
+${BASE_RULES}
+- Copie apenas o que está escrito no texto; não complete lacunas, não reescreva conquistas e não crie datas.
+- Deixe o campo como string vazia ou lista vazia quando a informação não aparecer no texto.
+- Use "current": true apenas quando o texto indicar explicitamente que é o emprego atual.
+- Datas no formato MM/AAAA quando possível, mantendo exatamente o que estiver escrito se não houver como converter.
+Formato do JSON: { "personal_information": { "full_name": string, "email": string, "phone": string, "location": string, "linkedin": string, "github": string, "website": string }, "summary": string, "experiences": [{ "company": string, "position": string, "start_date": string, "end_date": string, "current": boolean, "description": string, "achievements": string[] }], "education": [{ "institution": string, "degree": string, "field": string, "start_date": string, "end_date": string, "description": string }], "skills": [{ "name": string, "category": string, "proficiency": string }], "certifications": [{ "name": string, "issuer": string, "year": string }], "languages": [{ "name": string, "level": string }], "projects": [{ "name": string, "description": string, "url": string }] }`,
+      `TEXTO EXTRAÍDO DO ARQUIVO DO CURRÍCULO:\n${input.resumeText}`,
+    );
+    const parsed = structuredResumeSchema.safeParse(raw);
+    if (!parsed.success) throw new Error("AI_INVALID_RESPONSE");
+    return parsed.data;
   }
 }
 
