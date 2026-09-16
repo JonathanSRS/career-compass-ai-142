@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Download, Loader2, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { emptyResume, type StructuredResume } from "@/lib/resume-schema";
+import { buildResumeDocx, downloadBlob, resumeDocxFileName } from "@/lib/resume-docx";
 
 export interface ResumeFormValue {
   title: string;
