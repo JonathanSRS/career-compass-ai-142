@@ -6,6 +6,7 @@
  * `getAIService()` — nenhum serviço de negócio precisa mudar.
  */
 import { jobAnalysisSchema, matchResultSchema, type JobAnalysis, type MatchResult } from "@/lib/analysis-schema";
+import { structuredResumeSchema, type StructuredResume } from "@/lib/resume-schema";
 
 export interface AnalyzeJobInput {
   title: string;
@@ -24,6 +25,7 @@ export interface CalculateMatchInput {
 export interface AIService {
   analyzeJob(input: AnalyzeJobInput): Promise<JobAnalysis>;
   calculateMatch(input: CalculateMatchInput): Promise<MatchResult>;
+  parseResumeText(input: { resumeText: string }): Promise<StructuredResume>;
 }
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
