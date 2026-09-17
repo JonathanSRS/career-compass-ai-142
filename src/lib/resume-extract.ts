@@ -18,10 +18,9 @@ export function detectResumeFileKind(file: File): ResumeFileKind | null {
 
 async function extractFromPdf(file: File): Promise<string> {
   const pdfjs = await import("pdfjs-dist");
-  const workerModule = (await import(
-    // @ts-expect-error resolvido pelo Vite como URL do worker
-    "pdfjs-dist/build/pdf.worker.min.mjs?url"
-  )) as { default: string };
+  const workerModule = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")) as unknown as {
+    default: string;
+  };
   pdfjs.GlobalWorkerOptions.workerSrc = workerModule.default;
 
   const buffer = await file.arrayBuffer();
@@ -36,7 +35,7 @@ async function extractFromPdf(file: File): Promise<string> {
       .replace(/\s+\n/g, "\n");
     pages.push(text);
   }
-  await pdf.destroy();
+  await pdf.cleanup();
   return pages.join("\n\n");
 }
 
