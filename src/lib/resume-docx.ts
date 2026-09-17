@@ -45,10 +45,10 @@ export async function buildResumeDocx(resume: StructuredResume): Promise<Blob> {
       children: [new TextRun({ text: text.toUpperCase(), bold: true })],
     });
 
-  const body = (text: string, opts: { bold?: boolean; italics?: boolean } = {}) =>
+  const body = (text: string, opts: { bold?: boolean } = {}) =>
     new Paragraph({
       spacing: { after: 60 },
-      children: [new TextRun({ text, bold: opts.bold, italics: opts.italics })],
+      children: [opts.bold === true ? new TextRun({ text, bold: true }) : new TextRun({ text })],
     });
 
   const bullet = (text: string) =>
