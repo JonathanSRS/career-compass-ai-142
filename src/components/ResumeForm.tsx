@@ -79,6 +79,22 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
             onCheckedChange={(checked) => onChange({ ...value, is_primary: checked })}
           />
         </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">Exportar em DOCX (padrão ATS)</p>
+            <p className="text-xs text-muted-foreground">
+              Coluna única, sem tabelas ou gráficos, com as seções tradicionais.
+            </p>
+          </div>
+          <Button type="button" variant="outline" disabled={exporting} onClick={() => void exportDocx()}>
+            {exporting ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 size-4" />
+            )}
+            {exporting ? "Gerando..." : "Baixar DOCX"}
+          </Button>
+        </div>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
