@@ -30,10 +30,25 @@ export function createEmptyFormValue(): ResumeFormValue {
 
 export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
   const [tab, setTab] = useState("dados");
+  const [exporting, setExporting] = useState(false);
   const content = value.structured_content;
 
   function patchContent(patch: Partial<StructuredResume>) {
     onChange({ ...value, structured_content: { ...content, ...patch } });
+  }
+
+  async function exportDocx() {
+    try {
+      setExporting(true);
+      const blob = await buildResumeDocx(content);
+      downloadBlob(blob, resumeDocxFileName(value.title, content.personal_information.full_name));
+      toast.success("Currículo exportado em DOCX no padrão ATS.");
+    } catch (error) {
+      console.error("exportDocx", error);
+      toast.error("Não foi possível gerar o arquivo DOCX agora.");
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
