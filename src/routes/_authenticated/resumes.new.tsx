@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ResumeForm, createEmptyFormValue, type ResumeFormValue } from "@/components/ResumeForm";
+import { ResumeDropzone } from "@/components/ResumeDropzone";
 import { saveResume } from "@/lib/resumes.functions";
 
 export const Route = createFileRoute("/_authenticated/resumes/new")({
@@ -46,6 +47,16 @@ function NewResume() {
           Preencha apenas informações verdadeiras — elas são a base de todas as análises.
         </p>
       </div>
+      <ResumeDropzone
+        onImported={(structured, fileName) =>
+          setValue((current) => ({
+            ...current,
+            title: current.title || fileName.replace(/\.[^.]+$/, ""),
+            structured_content: structured,
+          }))
+        }
+      />
+
       <ResumeForm value={value} onChange={setValue} onSubmit={() => save.mutate()} saving={save.isPending} />
     </div>
   );
