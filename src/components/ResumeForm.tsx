@@ -30,10 +30,25 @@ export function createEmptyFormValue(): ResumeFormValue {
 
 export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
   const [tab, setTab] = useState("dados");
+  const [exporting, setExporting] = useState(false);
   const content = value.structured_content;
 
   function patchContent(patch: Partial<StructuredResume>) {
     onChange({ ...value, structured_content: { ...content, ...patch } });
+  }
+
+  async function exportDocx() {
+    try {
+      setExporting(true);
+      const blob = await buildResumeDocx(content);
+      downloadBlob(blob, resumeDocxFileName(value.title, content.personal_information.full_name));
+      toast.success("Currículo exportado em DOCX no padrão ATS.");
+    } catch (error) {
+      console.error("exportDocx", error);
+      toast.error("Não foi possível gerar o arquivo DOCX agora.");
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -63,6 +78,22 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
             checked={value.is_primary}
             onCheckedChange={(checked) => onChange({ ...value, is_primary: checked })}
           />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">Exportar em DOCX (padrão ATS)</p>
+            <p className="text-xs text-muted-foreground">
+              Coluna única, sem tabelas ou gráficos, com as seções tradicionais.
+            </p>
+          </div>
+          <Button type="button" variant="outline" disabled={exporting} onClick={() => void exportDocx()}>
+            {exporting ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 size-4" />
+            )}
+            {exporting ? "Gerando..." : "Baixar DOCX"}
+          </Button>
         </div>
       </div>
 
