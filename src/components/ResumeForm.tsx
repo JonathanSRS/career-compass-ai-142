@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Download, Loader2, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { emptyResume, type StructuredResume } from "@/lib/resume-schema";
-import { buildResumeDocx, downloadBlob, resumeDocxFileName } from "@/lib/resume-docx";
+import { ResumeExportPanel } from "@/components/ResumeExportPanel";
 
 export interface ResumeFormValue {
   title: string;
@@ -30,26 +29,12 @@ export function createEmptyFormValue(): ResumeFormValue {
 
 export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
   const [tab, setTab] = useState("dados");
-  const [exporting, setExporting] = useState(false);
   const content = value.structured_content;
 
   function patchContent(patch: Partial<StructuredResume>) {
     onChange({ ...value, structured_content: { ...content, ...patch } });
   }
 
-  async function exportDocx() {
-    try {
-      setExporting(true);
-      const blob = await buildResumeDocx(content);
-      downloadBlob(blob, resumeDocxFileName(value.title, content.personal_information.full_name));
-      toast.success("Currículo exportado em DOCX no padrão ATS.");
-    } catch (error) {
-      console.error("exportDocx", error);
-      toast.error("Não foi possível gerar o arquivo DOCX agora.");
-    } finally {
-      setExporting(false);
-    }
-  }
 
   return (
     <form
@@ -79,22 +64,8 @@ export function ResumeForm({ value, onChange, onSubmit, saving }: Props) {
             onCheckedChange={(checked) => onChange({ ...value, is_primary: checked })}
           />
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3">
-          <div>
-            <p className="text-sm font-medium">Exportar em DOCX (padrão ATS)</p>
-            <p className="text-xs text-muted-foreground">
-              Coluna única, sem tabelas ou gráficos, com as seções tradicionais.
-            </p>
-          </div>
-          <Button type="button" variant="outline" disabled={exporting} onClick={() => void exportDocx()}>
-            {exporting ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 size-4" />
-            )}
-            {exporting ? "Gerando..." : "Baixar DOCX"}
-          </Button>
-        </div>
+        <ResumeExportPanel resume={content} title={value.title} />
+
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
